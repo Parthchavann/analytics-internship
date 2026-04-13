@@ -5,48 +5,50 @@
 
 ## Dataset & Approach
 
-99 JSON files, each representing a customer call, were analyzed. Each file contained LLM-extracted use cases tagged as either "safety" or "nonsafety." Before writing any code, I read 8 files manually to understand the extraction format, label style, and evidence quality. The scripted analysis then flattened all 702 use cases (471 safety, 231 nonsafety) into a single table, applied six quality checks, and clustered cleaned nonsafety rows using keyword matching on 227 rows that had evidence and non-generic labels.
+92 customer calls (99 JSON files, 7 with no extracted use cases) were analyzed, yielding 702 total use cases — 471 safety, 231 nonsafety. Before writing any code, I read 8 files manually to map the schema, understand label style, and spot cross-bucket inconsistencies. The script then applied 7 quality checks, attributed each evidence quote to either a Voxel rep or a customer speaker, and clustered 229 cleaned nonsafety rows using keyword-based theme assignment. Clusters were validated against a top-30 label frequency check and a Jaccard near-duplicate audit before drawing conclusions.
 
 ---
 
 ## Data Quality: What to Trust
 
-The extraction produced usable data, but there are meaningful reliability issues before drawing conclusions:
+The extraction is directionally useful but has four reliability problems that affect how much weight any single label should carry:
 
-- **28 labels appeared in both the safety and nonsafety buckets.** For example, "assign and track safety actions with role-based access" and "track intervention impact with platform markers" were tagged as both safety and nonsafety in different calls. This level of cross-bucket bleed (12% of all unique nonsafety labels) suggests the extraction model had no consistent rule for the distinction.
-- **9 label strings were exact duplicates across files** (e.g., "PPE compliance monitoring" appears in 8 separate calls). These likely reflect a small fixed vocabulary the LLM was anchored to rather than distinct customer expressions.
-- **7 generic/admin labels** matched scheduling or follow-up language (e.g., "Getting sites onto the same schedule," "Timing follow-up around internal planning") — real workflow friction, but not product use cases.
-- **4 files had only 1 extracted use case total**, suggesting either very short calls or incomplete extraction.
-- **Zero-evidence use cases: 0.** Every extracted use case had at least one supporting quote — the one unambiguously clean signal in the dataset.
+- **24 calls (26%) have the same label in both safety and nonsafety buckets.** Labels like "enterprise safety analytics and summary view" and "assign and track safety actions with role-based access" appear in both buckets across different calls — the extractor had no stable boundary between the two categories.
+- **26 nonsafety labels contain explicit safety-core language** (e.g., "Retail floor hazard detection to reduce liability exposure," "Reduce injury and liability costs via targeted interventions") — these are safety use cases mislabeled as nonsafety.
+- **17 near-duplicate label pairs detected via Jaccard similarity ≥ 0.45** (e.g., "Open door duration monitoring" ≈ "Dock door open-duration tracking" ≈ "Door open/propped duration monitoring"). Label fragmentation inflates apparent variety — these are the same use case described three different ways.
+- **34 use cases have at least one evidence quote under 35 characters** — too short to confirm the label actually reflects the customer's intent.
+- **32% of nonsafety use cases (74 of 231) have zero customer quotes** — all evidence comes from Voxel reps describing the use case, not customers requesting it. These are weaker signals and were tracked separately throughout the analysis.
 
-The cleaned nonsafety dataset (227 rows, 15% unclustered) is credible for directional conclusions, but not precise enough to stake hard product prioritization on without re-running extraction with a cleaner safety/nonsafety definition.
+The cleaned nonsafety dataset (229 rows, 14% unclustered) is reliable enough for directional product prioritization, but individual label counts should be treated as lower bounds, not precise measurements.
 
 ---
 
 ## Top 3 Non-Safety Opportunities
 
-**1. Reporting & Analytics — 36 calls, 51 mentions**
+**1. Reporting & Analytics — 40 calls (43.5%), 61 mentions**
 
-Customers consistently want more from Voxel's data layer: executive dashboards, cross-site trend exports, platform adoption metrics, and email summaries for stakeholders who won't log in. The breadth here is the signal — 36 distinct calls raised it. One customer said: *"Being used and, you know, through the program, giving me all that data has been really helpful to really pinpoint with these managers."* Another flagged that a competitor's data was "very, very confusing," positioning Voxel's existing interface as a potential advantage if reporting is surfaced more deliberately. Voxel already captures the underlying data; the ask is mostly about access and presentation. This is low-lift to explore and has clear enterprise upsell implications.
+Customers want more from Voxel's data layer: executive dashboards, PDF/CSV exports, cross-site benchmarking, email summaries for stakeholders who won't log in, and platform adoption metrics. This showed up in nearly half of all calls analyzed, and the requests were specific. One customer: *"Being used and, you know, through the program, giving me all that data has been really helpful to really pinpoint with these managers."* Another flagged a competitor's interface as "very, very confusing," positioning Voxel's existing data as an advantage if surfaced better. 20 of 61 mentions had Voxel-rep-only evidence, so roughly two-thirds of these requests were customer-initiated — a strong signal. Voxel already captures the underlying data; this is an access and presentation problem, not a detection problem.
 
-**2. Operational Efficiency & Labor — 26 calls, 40 mentions**
+**2. Operational Efficiency & Labor — 25 calls (27.2%), 36 mentions**
 
-Customers are using Voxel data to identify operational inefficiencies beyond safety — dock door duration, PIT parking time, dwell patterns, and freezer door monitoring for energy costs. One customer noted directly: *"I saved hundreds of thousands of dollars in energy just by noticing that there was a door that was two feet open in Modesto, California, about two days a week."* Another was actively measuring: *"The one area I wanted to highlight with you was parking duration, because that saw a pretty sharp increase this past month."* These are not hypothetical requests — customers are already pulling this data from Voxel's existing detections. The opportunity is to formalize it as a product surface rather than a workaround.
+Customers are repurposing Voxel's existing camera coverage for operational visibility: dock door duration, PIT vehicle dwell time, freezer door monitoring for energy costs, and conveyor congestion detection. One customer was explicit about the financial case: *"I saved hundreds of thousands of dollars in energy just by noticing that there was a door that was two feet open in Modesto, California, about two days a week."* Another: *"once we have a jam, I would wonder if there's an ability to go back in time and say, look, this is the five seconds before that jam happened."* 13 of 36 mentions had Voxel-rep-only evidence, so about a third were prompted. Still, the dollar amounts cited and operational specificity of the requests make this a credible expansion surface.
 
-**3. Security & Loss Prevention — 16 calls, 18 mentions**
+**3. Workflow & Action Management — 18 calls (19.6%), 21 mentions**
 
-Shrink reduction and after-hours access monitoring came up across 16 calls — primarily retail and warehouse customers. Quotes are specific: *"That could have been shrink right there. So that product could have fell off and that could have been, you know, a loss for that."* And: *"I just simply would want to know when someone picks that up and walked away with it."* The evidence is thinner per call than in the top two clusters — most calls had one or two mentions rather than extended discussion — so confidence here is moderate. But the customer language was unprompted and tied to real loss numbers, which makes it worth watching.
+Customers want a structured execution layer inside Voxel: assign clips to owners, set due dates, send automated reminders, and track resolution. The evidence is clear and customer-voiced: *"Since we assign a due date, what happens when that due date passes? Is there reminders?"* A Voxel rep confirmed the gap: *"The one thing we don't have that we've heard from a lot of folks is reminders for past due — how do we nudge someone when something's past due?"* This theme is distinct from the others because it's about workflow closure, not detection or data access. Confidence is moderate — 18 calls is a real signal, but some action management labels bled into Reporting & Analytics via the "boards" keyword, so the true count may be slightly higher.
+
+**Notable signal worth watching:** Security & Loss Prevention appeared in only 3 calls in 2022 and 3 in 2023, but jumped to 10 distinct calls in 2024. Too early to rank it in the top 3, but the acceleration is worth flagging.
 
 ---
 
 ## Recommended Pipeline Improvement
 
-The biggest quality problem is the 28-label cross-bucket bleed between safety and nonsafety. A straightforward fix is to add a **definition check step** immediately after extraction: for any label that appears in both buckets across the dataset, flag it for human review before finalizing. In practice, this means building a small deduplication pass that compares extracted labels case-insensitively across all files in a batch run and surfaces conflicts in a review queue. This would take one engineer a day to implement and would give reviewers a targeted list rather than requiring full re-reads. It directly addresses the root issue — the LLM lacks a stable, consistent boundary between safety and non-safety applications — without requiring a full re-prompt.
+**Add a speaker-attribution filter before finalizing use case extractions.** 32% of nonsafety use cases in this dataset have zero customer quotes — the evidence is entirely Voxel reps describing a capability, not customers requesting one. A simple post-processing step that tags each extracted use case as "customer-initiated" or "Voxel-prompted" (based on speaker email domain) would let reviewers immediately separate genuine demand signals from sales-side framing. This requires no changes to the extraction model — just a labeling pass on the output JSON before it enters any analysis. It would meaningfully raise the confidence bar on downstream prioritization decisions.
 
 ---
 
 ## Assumptions
 
-1. Each JSON file represents one unique customer call (no deduplication of calls across files was attempted).
-2. Keyword-based clustering reflects customer intent accurately for the majority of labels — edge cases exist but do not materially change the top 3 ranking.
-3. Breadth (number of distinct calls mentioning a cluster) is treated as a stronger signal than raw mention count, since a single call can inflate counts with multiple related labels.
+1. Each JSON file is a unique customer call — no cross-file deduplication was attempted.
+2. Speaker email domain (`voxelai.com` vs. customer domain) is a reliable proxy for whether a use case was customer-initiated or Voxel-prompted.
+3. Call breadth (distinct files per theme) is treated as a stronger signal than raw mention count; one call can surface many related labels, which would overstate frequency without this normalization.

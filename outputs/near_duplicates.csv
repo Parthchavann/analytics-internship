@@ -1,0 +1,18 @@
+label_a,label_b,jaccard
+Food safety PPE compliance (hair nets and beard nets),Food hygiene PPE compliance (hair nets and beard nets),0.857
+Open door duration monitoring,Door open/propped duration monitoring,0.75
+Open door duration monitoring,Dock door open-duration tracking,0.75
+Open dock door duration monitoring and threshold tuning,Dock door open-duration tracking,0.667
+Sensitive product condition monitoring,Product condition monitoring,0.667
+Dock door open-duration tracking,Door open/propped duration monitoring,0.6
+Open door duration monitoring,Open door duration tracking for turn-time management,0.6
+Open dock door duration monitoring and threshold tuning,Open door duration monitoring,0.5
+Assign and track actions with accountability and reporting,Assign incidents and track accountability,0.5
+Cross‑site safety analytics and benchmarking,Cross-site and shift compliance benchmarking,0.5
+Open door duration monitoring,Open door monitoring for security,0.5
+Charger parking duration telemetry,Parking duration monitoring,0.5
+Action workflow and accountability tracking,Action management and coaching workflow,0.5
+Open door duration tracking for turn-time management,Dock door open-duration tracking,0.5
+Action workflow and accountability tracking,Action tracking and accountability for safety interventions,0.5
+Open door duration tracking for turn-time management,Door open/propped duration monitoring,0.5
+Use Actions workflow to manage corrective actions and track impact,Track and close the loop on safety corrective actions with the Actions workflow,0.5

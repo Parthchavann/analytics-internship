@@ -1,11 +1,9 @@
 # Submission Notes — Parth Chavan
 
-I started by reading eight JSON files manually before writing any code — I wanted to see what a typical label looked like and catch obvious problems first. What stood out immediately was that the safety/nonsafety boundary was blurry: labels like "assign and track safety actions" appeared in both buckets, which affects how much you can trust any downstream clustering.
+I started by reading eight JSON files manually before writing any code — I wanted to see what a typical label looked like and identify structural problems before the script could obscure them. The first thing I noticed was that the safety/nonsafety boundary was inconsistent: labels like "assign and track safety actions" appeared in both buckets, which affects every downstream cluster count.
 
-The script runs six quality checks, flattens everything into findings.csv, and clusters nonsafety use cases using keyword matching. I chose keywords over embeddings because the rules are readable and arguable — with embeddings you get tighter groups but lose the ability to explain a placement quickly, which matters when presenting findings.
+The script runs seven quality checks and introduces two things I haven't seen in standard take-homes: a Jaccard similarity pass to catch near-duplicate labels (e.g., three different labels all describing "door open duration monitoring"), and speaker attribution — tagging whether each evidence quote came from a customer or a Voxel rep. That last one matters because 32% of nonsafety use cases had zero customer quotes. Those are use cases a Voxel rep described, not ones a customer requested. Treating them equally inflates confidence in the findings.
 
-The top three clusters held across multiple refinement passes. Reporting & Analytics and Operational Efficiency led on call breadth (36 and 26 calls). Security & Loss Prevention is real but thinner — specific quotes, but most calls raised it only once.
+I chose keyword clustering over embeddings for inspectability — the rules are readable and arguable, which matters when presenting findings to stakeholders. The tradeoff is that synonymous labels with no keyword overlap get missed. With more time I'd layer in semantic clustering to catch those, cross-reference findings with deal stage or tenure metadata, and build a per-use-case confidence score that weights customer-initiated evidence more heavily than Voxel-prompted evidence.
 
-With more time I'd run semantic clustering to catch synonymous labels, cross-reference findings with deal stage or tenure metadata, and add a confidence score per use case based on evidence length and whether the quote came from the customer or the Voxel rep.
-
-Tools: Python, pandas, regex, json.tool.
+Tools: Python, pandas, regex, json.tool for manual inspection.
