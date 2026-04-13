@@ -13,12 +13,11 @@
 
 The extraction produced usable data, but there are meaningful reliability issues before drawing conclusions:
 
-- **Zero-evidence use cases: 0.** Every extracted use case had at least one supporting quote. This is the one clean signal.
 - **28 labels appeared in both the safety and nonsafety buckets.** For example, "assign and track safety actions with role-based access" and "track intervention impact with platform markers" were tagged as both safety and nonsafety in different calls. This level of cross-bucket bleed (12% of all unique nonsafety labels) suggests the extraction model had no consistent rule for the distinction.
 - **9 label strings were exact duplicates across files** (e.g., "PPE compliance monitoring" appears in 8 separate calls). These likely reflect a small fixed vocabulary the LLM was anchored to rather than distinct customer expressions.
 - **7 generic/admin labels** matched scheduling or follow-up language (e.g., "Getting sites onto the same schedule," "Timing follow-up around internal planning") — real workflow friction, but not product use cases.
 - **4 files had only 1 extracted use case total**, suggesting either very short calls or incomplete extraction.
-- **0 cases of long labels with thin evidence.** Verbosity in labels was consistently backed by transcript quotes.
+- **Zero-evidence use cases: 0.** Every extracted use case had at least one supporting quote — the one unambiguously clean signal in the dataset.
 
 The cleaned nonsafety dataset (227 rows, 15% unclustered) is credible for directional conclusions, but not precise enough to stake hard product prioritization on without re-running extraction with a cleaner safety/nonsafety definition.
 
